@@ -44,6 +44,8 @@ defmodule OpentelemetryAsh do
     if current != :undefined do
       OpenTelemetry.Tracer.end_span()
     end
+
+    :ok
   end
 
   @impl Ash.Tracer
@@ -67,6 +69,8 @@ defmodule OpentelemetryAsh do
     if parent_context != :undefined do
       OpenTelemetry.Ctx.attach(parent_context)
     end
+
+    :ok
   end
 
   @impl Ash.Tracer
@@ -76,12 +80,13 @@ defmodule OpentelemetryAsh do
 
   @impl Ash.Tracer
   def set_error(error, _opts \\ []) do
-    IO.inspect(error, label: "error")
     s = OpenTelemetry.Tracer.current_span_ctx()
 
     if s != :undefined do
       OpenTelemetry.Span.set_status(s, OpenTelemetry.status(:error, format_error(error)))
     end
+
+    :ok
   end
 
   defp format_error(%{__exception__: true} = exception) do

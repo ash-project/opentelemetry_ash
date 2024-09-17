@@ -2,10 +2,10 @@ defmodule OpentelemetryAsh.MixProject do
   use Mix.Project
 
   @description """
-  The AppSignal APM integration for Ash Framework
+  The Opentelemetry integration for Ash Framework
   """
 
-  @version "0.1.3"
+  @version "0.1.0"
 
   def project do
     [
