@@ -7,7 +7,7 @@ Add `opentelemetry_ash` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:opentelemetry_ash, github: "ash-project/opentelemetry_ash"}
+    {:opentelemetry_ash, "~> 0.1.0"}
   ]
 end
 ```

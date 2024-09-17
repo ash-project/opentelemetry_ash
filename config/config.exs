@@ -11,7 +11,8 @@ if Mix.env() == :dev do
     # Instructs the tool to manage the version in your README.md
     # Pass in `true` to use `"README.md"` or a string to customize
     manage_readme_version: [
-      "README.md"
+      "README.md",
+      "documentation/tutorials/getting-started-with-opentelemetry-ash.md"
     ],
     version_tag_prefix: "v"
 end
