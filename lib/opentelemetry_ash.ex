@@ -8,6 +8,8 @@ defmodule OpentelemetryAsh do
 
   @impl Ash.Tracer
   def start_span(type, name) do
+    ctx = OpenTelemetry.Tracer.current_span_ctx()
+
     s =
       OpenTelemetry.Tracer.start_span(name, %{
         kind: :client,
@@ -16,7 +18,11 @@ defmodule OpentelemetryAsh do
         }
       })
 
-    OpenTelemetry.Tracer.set_current_span(s)
+    if ctx != :undefined do
+      OpenTelemetry.Tracer.set_current_span(s, ctx)
+    else
+      OpenTelemetry.Tracer.set_current_span(s)
+    end
 
     :ok
   end
