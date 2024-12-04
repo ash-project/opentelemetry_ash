@@ -19,7 +19,7 @@ defmodule OpentelemetryAsh do
       })
 
     if ctx != :undefined do
-      OpenTelemetry.Tracer.set_current_span(s, ctx)
+      OpenTelemetry.Tracer.set_current_span(ctx, s)
     else
       OpenTelemetry.Tracer.set_current_span(s)
     end
