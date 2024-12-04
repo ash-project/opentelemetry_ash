@@ -8,8 +8,6 @@ defmodule OpentelemetryAsh do
 
   @impl Ash.Tracer
   def start_span(type, name) do
-    ctx = OpenTelemetry.Tracer.current_span_ctx()
-
     s =
       OpenTelemetry.Tracer.start_span(name, %{
         kind: :client,
@@ -18,11 +16,25 @@ defmodule OpentelemetryAsh do
         }
       })
 
-    if ctx != :undefined do
-      OpenTelemetry.Tracer.set_current_span(ctx, s)
-    else
-      OpenTelemetry.Tracer.set_current_span(s)
-    end
+    parent_span = OpenTelemetry.Tracer.current_span_ctx()
+
+    OpenTelemetry.Tracer.set_current_span(s)
+
+    Process.put(:opentelemetry_ash_span_stack, [
+      {s, parent_span} | Process.get(:opentelemetry_ash_span_stack, [])
+    ])
+
+    :ok
+  end
+
+  @impl Ash.Tracer
+  def stop_span do
+    [{span, parent_span} | rest] = Process.get(:opentelemetry_ash_span_stack)
+    OpenTelemetry.Tracer.end_span(span)
+
+    OpenTelemetry.Tracer.set_current_span(parent_span)
+
+    Process.put(:opentelemetry_ash_span_stack, rest)
 
     :ok
   end
@@ -41,17 +53,6 @@ defmodule OpentelemetryAsh do
       Application.get_env(:opentelemetry_ash, :trace_types) || [:custom, :action, :flow]
 
     is_nil(allowed_types) || Enum.member?(allowed_types, type)
-  end
-
-  @impl Ash.Tracer
-  def stop_span do
-    current = OpenTelemetry.Tracer.current_span_ctx()
-
-    if current != :undefined do
-      OpenTelemetry.Tracer.end_span()
-    end
-
-    :ok
   end
 
   @impl Ash.Tracer

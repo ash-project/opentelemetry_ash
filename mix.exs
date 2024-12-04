@@ -74,6 +74,8 @@ defmodule OpentelemetryAsh.MixProject do
       {:telemetry, "~> 0.4 or ~> 1.0"},
       {:opentelemetry_api, "~> 1.0"},
       {:opentelemetry_process_propagator, "~> 0.3"},
+      {:opentelemetry, "~> 1.5", only: [:dev, :test]},
+      {:opentelemetry_exporter, "~> 1.8", only: [:dev, :test]},
       {:ex_doc, "~> 0.22", only: [:dev, :test], runtime: false},
       {:ex_check, "~> 0.12", only: [:dev, :test]},
       {:credo, ">= 0.0.0", only: [:dev, :test], runtime: false},
