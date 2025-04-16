@@ -12,4 +12,4 @@ Welcome! `OpentelemetryAsh` is an integration between Opentelemetry and Ash.
 
 ## Tutorials
 
-- [Get Started with OpentelemetryAsh](documentation/tutorials/getting-started-with-opentelemtry-ash.md)
+- [Get Started with OpentelemetryAsh](documentation/tutorials/getting-started-with-opentelemetry-ash.md)
