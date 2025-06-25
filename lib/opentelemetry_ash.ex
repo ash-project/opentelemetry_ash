@@ -8,15 +8,15 @@ defmodule OpentelemetryAsh do
 
   @impl Ash.Tracer
   def start_span(type, name) do
+    parent_span = OpenTelemetry.Tracer.current_span_ctx()
+
     s =
-      OpenTelemetry.Tracer.start_span(name, %{
+      OpenTelemetry.Tracer.start_span(parent_span, name, %{
         kind: :client,
         attributes: %{
           type: type
         }
       })
-
-    parent_span = OpenTelemetry.Tracer.current_span_ctx()
 
     OpenTelemetry.Tracer.set_current_span(s)
 
