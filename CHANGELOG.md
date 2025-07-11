@@ -5,6 +5,15 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## [v0.1.3](https://github.com/ash-project/opentelemetry_ash/compare/v0.1.2...v0.1.3) (2025-07-11)
+
+
+
+
+### Bug Fixes:
+
+* properly set current context in new spans (#42) by Emad Shaaban
+
 ## [v0.1.2](https://github.com/ash-project/opentelemetry_ash/compare/v0.1.1...v0.1.2) (2025-07-09)
 
 
