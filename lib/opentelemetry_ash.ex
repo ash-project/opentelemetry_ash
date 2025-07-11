@@ -11,7 +11,7 @@ defmodule OpentelemetryAsh do
     parent_span = OpenTelemetry.Tracer.current_span_ctx()
 
     s =
-      OpenTelemetry.Tracer.start_span(parent_span, name, %{
+      OpenTelemetry.Tracer.start_span(name, %{
         kind: :client,
         attributes: %{
           type: type
