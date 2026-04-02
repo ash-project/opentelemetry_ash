@@ -46,11 +46,13 @@ defmodule OpentelemetryAshTest do
     end
 
     assert_receive {:span,
-                    {_, _, _, _, _, "changeset:resource:create", _, _, _, _, _, _, _, _, _, _}}
+                    {:span, _, _, _, _, _, "changeset:resource:create", _, _, _, _, _, _, _, _,
+                     _, _}}
 
     assert_receive {:span,
-                    {_, _, _, _, _, "domain:resource.create", _, _, _, _, _, _, _, _, _, _}}
+                    {:span, _, _, _, _, _, "domain:resource.create", _, _, _, _, _, _, _, _, _,
+                     _}}
 
-    assert_receive {:span, {_, _, _, _, _, "span-1", _, _, _, _, _, _, _, _, _, _}}
+    assert_receive {:span, {:span, _, _, _, _, _, "span-1", _, _, _, _, _, _, _, _, _, _}}
   end
 end
