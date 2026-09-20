@@ -12,7 +12,7 @@ defmodule OpentelemetryAsh do
 
     s =
       OpenTelemetry.Tracer.start_span(name, %{
-        kind: :client,
+        kind: :internal,
         attributes: %{
           type: type
         }

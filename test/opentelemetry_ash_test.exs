@@ -94,4 +94,22 @@ defmodule OpentelemetryAshTest do
     refute OpentelemetryAsh.trace_type?(:flow)
     refute OpentelemetryAsh.trace_type?(:query)
   end
+
+  test "Ash spans use the :internal span kind" do
+    OpenTelemetry.Tracer.with_span "span-internal" do
+      Ash.create!(Resource, %{name: "name"})
+    end
+
+    assert_receive {:span,
+                    {:span, _, _, _, _, _, "domain:resource.create", kind, _, _, _, _, _, _, _, _,
+                     _}}
+
+    assert kind == :internal
+
+    assert_receive {:span,
+                    {:span, _, _, _, _, _, "changeset:resource:create", kind, _, _, _, _, _, _, _,
+                     _, _}}
+
+    assert kind == :internal
+  end
 end
