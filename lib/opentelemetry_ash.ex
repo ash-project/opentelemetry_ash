@@ -80,10 +80,51 @@ defmodule OpentelemetryAsh do
     :ok
   end
 
+  # Ash may call this multiple times per span; `OpenTelemetry.Span.set_attributes/2`
+  # merges into the attributes already set on the span, satisfying the documented
+  # contract of `Ash.Tracer.set_metadata/2`.
   @impl Ash.Tracer
-  def set_metadata(_type, _metadata) do
+  def set_metadata(_type, metadata) do
+    s = OpenTelemetry.Tracer.current_span_ctx()
+
+    if s != :undefined do
+      OpenTelemetry.Span.set_attributes(s, attributes(metadata))
+    end
+
     :ok
   end
+
+  defp attributes(metadata) do
+    metadata
+    |> Enum.flat_map(fn
+      {key, value} when is_atom(key) ->
+        case attribute_value(value) do
+          :skip -> []
+          converted -> [{"ash.#{key}", converted}]
+        end
+
+      _other ->
+        []
+    end)
+  end
+
+  # Converts a metadata value into an OpenTelemetry primitive attribute value.
+  # Values that cannot be represented as a primitive (e.g. `actor` or `tenant`
+  # terms) are skipped rather than stringified wholesale, to avoid exporting
+  # arbitrary data onto spans.
+  defp attribute_value(value) when is_boolean(value), do: value
+  defp attribute_value(value) when is_binary(value), do: value
+  defp attribute_value(value) when is_integer(value), do: value
+  defp attribute_value(value) when is_float(value), do: value
+
+  defp attribute_value(value) when is_atom(value) do
+    case Atom.to_string(value) do
+      "Elixir." <> name -> name
+      name -> name
+    end
+  end
+
+  defp attribute_value(_value), do: :skip
 
   @impl Ash.Tracer
   def set_error(error, _opts \\ []) do
