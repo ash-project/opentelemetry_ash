@@ -112,4 +112,20 @@ defmodule OpentelemetryAshTest do
 
     assert kind == :internal
   end
+
+  test "set_handled_error marks the current span as errored" do
+    OpenTelemetry.Tracer.with_span "span-with-handled-error" do
+      OpentelemetryAsh.set_handled_error(%Ash.Error.Invalid{errors: []}, [])
+    end
+
+    assert_receive {:span,
+                    {:span, _, _, _, _, _, "span-with-handled-error", _, _, _, _, _, _, status, _,
+                     _, _}}
+
+    assert {:status, :error, _} = status
+  end
+
+  test "set_handled_error with no current span is a no-op" do
+    assert OpentelemetryAsh.set_handled_error(%Ash.Error.Invalid{errors: []}, []) == :ok
+  end
 end

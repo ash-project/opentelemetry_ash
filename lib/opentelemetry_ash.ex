@@ -137,6 +137,14 @@ defmodule OpentelemetryAsh do
     :ok
   end
 
+  # Ash calls this for errors it catches and turns into a failed result (the
+  # ordinary `{:error, class}` path), which previously left no mark on the
+  # span; only raised errors reached `set_error/2`.
+  @impl Ash.Tracer
+  def set_handled_error(error, _opts) do
+    set_error(error)
+  end
+
   defp format_error(%{__exception__: true} = exception) do
     Exception.message(exception)
   end
