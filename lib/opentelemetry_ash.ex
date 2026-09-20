@@ -50,7 +50,7 @@ defmodule OpentelemetryAsh do
 
   def trace_type?(type) do
     allowed_types =
-      Application.get_env(:opentelemetry_ash, :trace_types) || [:custom, :action, :flow]
+      Application.get_env(:opentelemetry_ash, :trace_types) || [:custom, :action]
 
     is_nil(allowed_types) || Enum.member?(allowed_types, type)
   end

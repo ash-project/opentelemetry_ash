@@ -84,4 +84,14 @@ defmodule OpentelemetryAshTest do
   test "set_metadata with no current span is a no-op" do
     assert OpentelemetryAsh.set_metadata(:action, %{action: :read}) == :ok
   end
+
+  test "default trace types are :custom and :action" do
+    Application.delete_env(:opentelemetry_ash, :trace_types)
+
+    assert OpentelemetryAsh.trace_type?(:custom)
+    assert OpentelemetryAsh.trace_type?(:action)
+    assert OpentelemetryAsh.trace_type?({:custom, :action})
+    refute OpentelemetryAsh.trace_type?(:flow)
+    refute OpentelemetryAsh.trace_type?(:query)
+  end
 end
