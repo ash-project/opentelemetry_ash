@@ -46,13 +46,86 @@ defmodule OpentelemetryAshTest do
     end
 
     assert_receive {:span,
-                    {:span, _, _, _, _, _, "changeset:resource:create", _, _, _, _, _, _, _, _,
-                     _, _}}
-
-    assert_receive {:span,
-                    {:span, _, _, _, _, _, "domain:resource.create", _, _, _, _, _, _, _, _, _,
+                    {:span, _, _, _, _, _, "changeset:resource:create", _, _, _, _, _, _, _, _, _,
                      _}}
 
+    assert_receive {:span,
+                    {:span, _, _, _, _, _, "domain:resource.create", _, _, _, _, _, _, _, _, _, _}}
+
     assert_receive {:span, {:span, _, _, _, _, _, "span-1", _, _, _, _, _, _, _, _, _, _}}
+  end
+
+  test "set_metadata merges metadata as ash-prefixed span attributes" do
+    OpenTelemetry.Tracer.with_span "span-with-metadata" do
+      OpentelemetryAsh.set_metadata(:action, %{
+        domain: OpentelemetryAshTest.Domain,
+        action: :read,
+        authorize?: true,
+        actor: %{id: 1}
+      })
+
+      OpentelemetryAsh.set_metadata(:action, %{resource_short_name: "resource"})
+    end
+
+    assert_receive {:span,
+                    {:span, _, _, _, _, _, "span-with-metadata", _, _, _, attributes, _, _, _, _,
+                     _, _}}
+
+    assert %{
+             "ash.domain" => "OpentelemetryAshTest.Domain",
+             "ash.action" => "read",
+             "ash.authorize?" => true,
+             "ash.resource_short_name" => "resource"
+           } = :otel_attributes.map(attributes)
+
+    refute Map.has_key?(:otel_attributes.map(attributes), "ash.actor")
+  end
+
+  test "set_metadata with no current span is a no-op" do
+    assert OpentelemetryAsh.set_metadata(:action, %{action: :read}) == :ok
+  end
+
+  test "default trace types are :custom and :action" do
+    Application.delete_env(:opentelemetry_ash, :trace_types)
+
+    assert OpentelemetryAsh.trace_type?(:custom)
+    assert OpentelemetryAsh.trace_type?(:action)
+    assert OpentelemetryAsh.trace_type?({:custom, :action})
+    refute OpentelemetryAsh.trace_type?(:flow)
+    refute OpentelemetryAsh.trace_type?(:query)
+  end
+
+  test "Ash spans use the :internal span kind" do
+    OpenTelemetry.Tracer.with_span "span-internal" do
+      Ash.create!(Resource, %{name: "name"})
+    end
+
+    assert_receive {:span,
+                    {:span, _, _, _, _, _, "domain:resource.create", kind, _, _, _, _, _, _, _, _,
+                     _}}
+
+    assert kind == :internal
+
+    assert_receive {:span,
+                    {:span, _, _, _, _, _, "changeset:resource:create", kind, _, _, _, _, _, _, _,
+                     _, _}}
+
+    assert kind == :internal
+  end
+
+  test "set_handled_error marks the current span as errored" do
+    OpenTelemetry.Tracer.with_span "span-with-handled-error" do
+      OpentelemetryAsh.set_handled_error(%Ash.Error.Invalid{errors: []}, [])
+    end
+
+    assert_receive {:span,
+                    {:span, _, _, _, _, _, "span-with-handled-error", _, _, _, _, _, _, status, _,
+                     _, _}}
+
+    assert {:status, :error, _} = status
+  end
+
+  test "set_handled_error with no current span is a no-op" do
+    assert OpentelemetryAsh.set_handled_error(%Ash.Error.Invalid{errors: []}, []) == :ok
   end
 end
