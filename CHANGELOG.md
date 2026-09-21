@@ -5,6 +5,21 @@ See [Conventional Commits](Https://conventionalcommits.org) for commit guideline
 
 <!-- changelog -->
 
+## [v0.1.4](https://github.com/ash-project/opentelemetry_ash/compare/v0.1.3...v0.1.4) (2026-09-21)
+
+
+
+
+### Bug Fixes:
+
+* tracer metadata correctness (4 fixes) (#75) by Luke Galea
+
+* remove :flow from the default trace_types by Luke Galea
+
+* start Ash spans with kind :internal by Luke Galea
+
+* implement the set_handled_error/2 callback by Luke Galea
+
 ## [v0.1.3](https://github.com/ash-project/opentelemetry_ash/compare/v0.1.2...v0.1.3) (2025-07-11)
 
 
